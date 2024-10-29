@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($user) {
         if ($user['pass'] === $password) { 
-            // Créé les variables de sessions 
+            
             $_SESSION["name"] = $user["nom"]; 
             $_SESSION["surname"] = $user["prenom"]; 
             $_SESSION["role"] = $user["role_compte"]; 

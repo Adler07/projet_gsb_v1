@@ -43,7 +43,7 @@
     LEFT JOIN statut_fiche s ON f.n°fiche_frais = s.fiche_id
     WHERE f.date_soumission >= DATE_SUB(NOW(), INTERVAL 1 YEAR) 
     ORDER BY f.n°fiche_frais DESC 
-    LIMIT 8");
+    LIMIT 10");
     $stmt->execute();
     $fiches = $stmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
@@ -52,7 +52,7 @@
         <thead>
             <tr>
                 <th>Numéro de Fiche</th>
-                <th>Total</th>
+                <th>Total (€)</th>
                 <th>Date de Soumission</th>
                 <th>Statut</th>
             </tr>
