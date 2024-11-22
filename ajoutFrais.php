@@ -28,5 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $ficheId = $pdo->lastInsertId();
     $stmtStatut = $pdo->prepare("INSERT INTO statut_fiche (fiche_id, statut) VALUES (:fiche_id, 'en attente')");
     $stmtStatut->execute(['fiche_id' => $ficheId]);
+
+    header('Location: dashboardVisiteur.php');
+
 } 
 ?>

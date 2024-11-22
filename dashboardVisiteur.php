@@ -1,79 +1,106 @@
 <?php
- session_start()
+session_start();
+if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
+    header("Location: connexion.html");
+    exit;
+}
+
+$nom = $_SESSION['name'];
+$role = $_SESSION['role'];
+
+$host = 'localhost';
+$dbname = 'gsb1';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $stmt = $pdo->prepare("SELECT f.`n°fiche_frais`, f.total, f.date_soumission, s.statut 
+                            FROM fiche_frais f
+                            LEFT JOIN statut_fiche s ON f.`n°fiche_frais` = s.fiche_id
+                            WHERE s.statut = 'En attente' OR s.statut IS NULL
+                             ORDER BY f.`n°fiche_frais` DESC");
+    $stmt->execute();
+    $fiches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    echo "Erreur : " . $e->getMessage();
+}
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <navbar>
-        <form action="logout.php">
-            <button>Se déconnecter</button>
-        </form>
-    </navbar>
-    <div class="flex justify-center content-center">
-    <?php
-    $nom = $_SESSION['name'];
-    $role = $_SESSION['role'];
-    echo "Bonjour {$nom}! Vous êtes connecté en tant que {$role}";
-    ?>
+<body class="bg-white text-white">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
+            GSB
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="dashboardVisiteur.php">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="saisieFrais.php">Nouvelle fiche</a>
+                </li>
+                <li class="nav-item">
+                    <form action="logout.php" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Déconnexion</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
     </div>
-    <a href="saisieFrais.php"><button>Nouvelle demande</button></a>
-
-
-    <?php
-    $host = 'localhost';
-    $dbname = 'gsb1';
-    $username = 'root';
-    $password = '';
-    
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
-    } catch (PDOException $e) {
-        die("Erreur de connexion : " . $e->getMessage());
-    }
-    
-
-    $stmt = $pdo->prepare(" SELECT f.n°fiche_frais, f.date_soumission, f.total, s.statut 
-    FROM fiche_frais f
-    LEFT JOIN statut_fiche s ON f.n°fiche_frais = s.fiche_id
-    WHERE f.date_soumission >= DATE_SUB(NOW(), INTERVAL 1 YEAR) 
-    ORDER BY f.n°fiche_frais DESC 
-    LIMIT 10");
-    $stmt->execute();
-    $fiches = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-    
-    <table>
-        <thead>
+</nav>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Bienvenue, <?= htmlspecialchars($nom) ?> !</h2>
+    <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
+</div>
+<div class="container mt-4">
+    <h3 class="text-center mb-4">Liste des Fiches de Frais en Attente</h3>
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
             <tr>
                 <th>Numéro de Fiche</th>
                 <th>Total (€)</th>
                 <th>Date de Soumission</th>
                 <th>Statut</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($fiches as $fiche): ?>
+            <?php if (!empty($fiches)) : ?>
+                <?php foreach ($fiches as $fiche) : ?>
+                    <tr>
+                        <td><?= htmlspecialchars($fiche['n°fiche_frais']); ?></td>
+                        <td><?= number_format($fiche['total'], 2, ',', ' '); ?> €</td>
+                        <td><?= htmlspecialchars($fiche['date_soumission']); ?></td>
+                        <td><?= htmlspecialchars($fiche['statut']); ?></td>
+                        <td>
+                            <a href="consultationFrais.php?fiche_id=<?= $fiche['n°fiche_frais']; ?>" class="btn btn-primary">Consulter</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else : ?>
                 <tr>
-                    <td><?php echo $fiche['n°fiche_frais']; ?></td>
-                    <td><?php echo $fiche['total']; ?></td>
-                    <td><?php echo $fiche['date_soumission']; ?></td>
-                    <td><?php echo $fiche['statut']; ?></td>
-                    <td><a href="consultationFrais.php?fiche_id=<?php echo $fiche['n°fiche_frais']; ?>">Consulter</a></td>
+                    <td colspan="5">Aucune fiche de frais en attente.</td>
                 </tr>
-            <?php endforeach; ?>
+            <?php endif; ?>
         </tbody>
     </table>
-
-    <?php
-    if ($nom == NULL || $role == NULL){
-        header("Location: connexion.html");
-            exit;}
-    ?>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

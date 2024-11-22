@@ -19,3 +19,7 @@ VALUES ('Jean', 'Dupont', 'jean.dupont@gsb.com', 'password123', 'Lyon', 'adminis
 ('Marie', 'Dupont', 'marie.dupont@gsb.com', 'password789', 'Lyon', 'comptable', '32');
 
 SELECT * FROM utilisateur;
+
+UPDATE utilisateur SET statut = 'actif' WHERE role_compte = 'administrateur';
+UPDATE utilisateur SET statut = 'actif' WHERE role_compte = 'visiteur médical';
+UPDATE utilisateur SET statut = 'inactif' WHERE role_compte = 'comptable';
