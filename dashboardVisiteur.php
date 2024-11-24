@@ -1,9 +1,5 @@
 <?php
 session_start();
-if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
-    header("Location: connexion.html");
-    exit;
-}
 
 $nom = $_SESSION['name'];
 $role = $_SESSION['role'];

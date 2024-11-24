@@ -17,7 +17,8 @@ try {
 
 $utilisateurs = [];
 
-$sql = "SELECT id, nom, prenom, role_compte, statut FROM utilisateur";
+$sql = "SELECT u.id, u.nom, u.prenom, r.nom_role, u.statut FROM utilisateur u
+            INNER JOIN role r ON u.id_role = r.id_role";
 $stmt = $pdo->query($sql);
 if ($stmt) {
     $utilisateurs = $stmt->fetchAll();
@@ -79,7 +80,7 @@ if ($stmt) {
                     <tr>
                         <td><?= htmlspecialchars($utilisateur['nom']) ?></td>
                         <td><?= htmlspecialchars($utilisateur['prenom']) ?></td>
-                        <td><?= htmlspecialchars($utilisateur['role_compte']) ?></td>
+                        <td><?= htmlspecialchars($utilisateur['nom_role']) ?></td>
                         <td><?= htmlspecialchars($utilisateur['statut']) ?></td>
                         <td><a href="modifierProfil.php?id=<?= $utilisateur['id'] ?>" class="btn btn-primary">Modifier profil</a></td>
                     </tr>

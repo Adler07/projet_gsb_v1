@@ -20,16 +20,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prenom = $_POST['prenom'];
     $email = $_POST['email'];
     $ville = $_POST['ville'];
-    $role = $_POST['role_compte'];
-    $age = $_POST['age'];
+    $telephone = $_POST['telephone'];
+    $role = $_POST['role_compte']; 
+    $code_postal = $_POST['code_postal'];
     $statut = $_POST['statut'];
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['confirm_password'];
 
-    $sql = "INSERT INTO utilisateur (nom, prenom, email, ville, role_compte, age, statut) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$nom, $prenom, $email, $ville, $role, $age, $statut]);
+    if ($password !== $confirmPassword) {
+        die('Les mots de passe ne correspondent pas.');
+    }
 
-    header('Location: dashboardAdmin.php');
-    exit;
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+    $roleSql = "SELECT id_role FROM role WHERE nom_role = ?";
+    $roleStmt = $pdo->prepare($roleSql);
+    $roleStmt->execute([$role]);
+    $roleData = $roleStmt->fetch();
+
+    if ($roleData) {
+        $idRole = $roleData['id_role']; 
+
+        $sql = "INSERT INTO utilisateur (nom, prenom, email, ville, pass ,telephone, code_postal, statut, id_role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nom, $prenom, $email, $ville, $hashedPassword, $telephone , $code_postal, $statut, $idRole]);
+
+        header('Location: dashboardAdmin.php');
+        exit;
+    } else {
+        die('Rôle non trouvé.');
+    }
 }
 ?>
 
@@ -87,7 +107,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="email" class="form-label text-white">Email :</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
-
+        <div class="mb-3">
+            <label for="password" class="form-label text-white">Mot de passe :</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label text-white">Confirmer le mot de passe :</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+        </div>
+        <div class="mb-3">
+            <label for="ville" class="form-label text-white">Téléphone:</label>
+            <input type="text" class="form-control" id="telephone" name="telephone" required>
+        </div>
         <div class="mb-3">
             <label for="ville" class="form-label text-white">Ville :</label>
             <input type="text" class="form-control" id="ville" name="ville" required>
@@ -95,19 +126,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="mb-3">
             <label for="role_compte" class="form-label text-white">Rôle :</label>
-            <input type="text" class="form-control" id="role_compte" name="role_compte" required>
+            <select class="form-control" id="role_compte" name="role_compte" required>
+                <option value="Visiteur" selected>Visiteur Médical</option>
+                <option value="Comptable">Comptable</option>
+                <option value="Administrateur">Administrateur</option>
+            </select>
         </div>
 
         <div class="mb-3">
             <label for="code_postal" class="form-label text-white">Code postal :</label>
-            <input type="number" class="form-control" id="code_postal" name="code_postal" required>
+            <input type="text" class="form-control" id="code_postal" name="code_postal" required>
         </div>
 
         <div class="mb-3">
             <label for="statut" class="form-label text-white">Statut :</label>
-            <input type="text" class="form-control" id="statut" name="statut" required>
+            <select class="form-control" id="statut" name="statut" required>
+                <option value="Actif" selected>Actif</option>
+                <option value="Inactif">Inactif</option>
+            </select>
         </div>
-
         <div class="text-center">
             <button type="submit" class="btn btn-success text-white">Créer</button>
         </div>
