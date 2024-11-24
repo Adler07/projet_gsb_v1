@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+$prenom = $_SESSION['prenom'];
+$nom = $_SESSION['nom'];
+$role = $_SESSION['nom_role'];
+$id = $_SESSION['id'];
+
 $db = 'mysql:host=localhost;dbname=gsb1;charset=utf8';
 $username = 'root';
 $password = '';
@@ -62,6 +67,12 @@ if ($stmt) {
         </div>
     </div>
 </nav>
+<div class="container mt-5">
+    <div class="bg-dark p-4 rounded text-white">
+        <h2 class="text-center mb-4">Bienvenue, <strong><?= htmlspecialchars($prenom) . " " . htmlspecialchars($nom)?></strong></h2>
+        <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
+    </div>
+</div>
 <div class="container mt-5">
     <h2 class="text-center mb-4">Liste des Utilisateurs</h2>
     <table class="table table-bordered text-center">

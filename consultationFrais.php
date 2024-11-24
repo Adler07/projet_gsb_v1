@@ -62,8 +62,11 @@ $isEditable = ($fiche['statut'] === 'en attente');
                     <a class="nav-link text-white" href="saisieFrais.php">Nouvelle fiche</a>
                 </li>
                 <li class="nav-item">
+                <a class="nav-link text-white" href="profilVisiteur.php?id=<?= $_SESSION['id'] ?>">Voir profil</a>
+                </li>
+                <li class="nav-item">
                     <form action="logout.php" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger btn-sm">Déconnexion</button>
+                        <button type="submit" class="btn btn-danger">Déconnexion</button>
                     </form>
                 </li>
             </ul>

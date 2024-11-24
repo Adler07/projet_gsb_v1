@@ -1,9 +1,10 @@
 <?php
 session_start();
 
-
-$nom = $_SESSION['name'];
-$role = $_SESSION['role'];
+$prenom = $_SESSION['prenom'];
+$nom = $_SESSION['nom'];
+$role = $_SESSION['nom_role'];
+$id = $_SESSION['id'];
 
 $host = 'localhost';
 $dbname = 'gsb1';
@@ -51,6 +52,9 @@ try {
                     <a class="nav-link text-white" href="dashboardComptable.php">Accueil</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link text-white" href="profilComptable.php?id=<?= $_SESSION['id'] ?>">Voir profil</a>
+                </li>
+                <li class="nav-item">
                     <form action="logout.php" method="post" class="d-inline">
                         <button type="submit" class="btn btn-danger">Déconnexion</button>
                     </form>
@@ -60,11 +64,13 @@ try {
     </div>
 </nav>
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Bienvenue, <?= htmlspecialchars($nom) ?> !</h2>
-    <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
+    <div class="bg-dark p-4 rounded text-white">
+        <h2 class="text-center mb-4">Bienvenue, <strong><?= htmlspecialchars($prenom) . " " . htmlspecialchars($nom)?></strong></h2>
+        <p class="text-center">Vous êtes connecté en tant que <strong><?= htmlspecialchars($role) ?></strong>.</p>
+    </div>
 </div>
 <div class="container mt-4">
-    <h3 class="text-center mb-4">Liste des Fiches de Frais</h3>
+    <h3 class="text-center mb-4 text-dark">Fiches de frais à traiter</h3>
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
@@ -72,7 +78,7 @@ try {
                 <th>Total (€)</th>
                 <th>Date de Soumission</th>
                 <th>Statut</th>
-                <th>Actions</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
