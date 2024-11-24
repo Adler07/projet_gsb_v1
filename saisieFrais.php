@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total = $_POST['total'];
         $date = $_POST['date'];
         $justificatif = $_FILES['justificatif'];
+        $kilometres_voiture = isset($_POST['kilometres_voiture']) ? $_POST['kilometres_voiture'] : null;
+
 
         $justificatif_path = null; 
         if ($justificatif['error'] === UPLOAD_ERR_OK) {
@@ -37,10 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path]);
+$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path, $kilometres_voiture]);
     }
     elseif (isset($_POST['type_frais']) && $_POST['type_frais'] === 'hors_forfait') {
         $date = $_POST['date_hors_forfait'];
@@ -48,22 +50,20 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
         $montant = $_POST['montant'];
         $justificatif = $_FILES['justificatif'];
     
-        $justificatif_path = null; // Variable pour stocker le chemin du justificatif
+        $justificatif_path = null; 
         if ($justificatif['error'] === UPLOAD_ERR_OK) {
-            $target_dir = "uploads/"; // Dossier où stocker les justificatifs
-            // Assure que le dossier "uploads" existe
+            $target_dir = "assets\uploads"; 
+            
             if (!is_dir($target_dir)) {
                 mkdir($target_dir, 0777, true);
             }
             $justificatif_path = $target_dir . basename($justificatif['name']);
             
-            // Déplace le fichier téléchargé
             if (!move_uploaded_file($justificatif['tmp_name'], $justificatif_path)) {
                 die("Erreur lors de l'upload du fichier.");
             }
         }
     
-        // Requête pour insérer les données dans la table `frais_hors_forfait`
         $sql = "INSERT INTO hors_forfait (date_hors_forfait, libelle, montant, justificatif) 
                 VALUES (?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
@@ -144,14 +144,35 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
                     <label for="nombre_repas" class="form-label">Nombre de nuits :</label>
                     <input type="number" class="form-control" id="nombre_hebergement" name="nombre_hebergement" required>
                 </div>
-                <div class="mb-3">
-                    <label for="montant_deplacement" class="form-label">Total déplacement (€) :</label>
-                    <input type="number" class="form-control" id="montant_deplacement" name="montant_deplacement" step="0.01" required>
-                </div>
-                <div class="mb-3">
-                    <label for="nombre_repas" class="form-label">Nombre de transports :</label>
-                    <input type="number" class="form-control" id="nombre_deplacement" name="nombre_deplacement" required>
-                </div>
+                <!-- Question sur le moyen de transport -->
+    <div class="mb-3">
+        <label class="form-label">Avez-vous pris les transports en commun ou utilisé la voiture ?</label>
+        <select class="form-control" id="moyen_transport" name="moyen_transport" required>
+            <option value="">Choisissez...</option>
+            <option value="transports">Transports en commun</option>
+            <option value="voiture">Voiture</option>
+        </select>
+    </div>
+
+    <!-- Si l'utilisateur a pris les transports -->
+    <div id="transports_fields" style="display:none;">
+        <div class="mb-3">
+            <label for="total_deplacement" class="form-label">Total déplacement (€) :</label>
+            <input type="number" class="form-control" id="total_deplacement" name="total_deplacement" step="0.01">
+        </div>
+        <div class="mb-3">
+            <label for="nombre_deplacement" class="form-label">Nombre de déplacements pris :</label>
+            <input type="number" class="form-control" id="nombre_deplacement" name="nombre_deplacement">
+        </div>
+    </div>
+
+    <!-- Si l'utilisateur a utilisé la voiture -->
+    <div id="voiture_fields" style="display:none;">
+        <div class="mb-3">
+            <label for="kilometres_voiture" class="form-label">Nombre de kilomètres effectués en voiture :</label>
+            <input type="number" class="form-control" id="kilometres_voiture" name="kilometres_voiture">
+        </div>
+    </div>
                 <div class="mb-3">
                     <label for="total" class="form-label">Total (€) :</label>
                     <input type="number" class="form-control" id="total" name="total" readonly required>
@@ -196,6 +217,21 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.getElementById('moyen_transport').addEventListener('change', function() {
+        var moyen_transport = this.value;
+        
+        // Masquer les deux sections par défaut
+        document.getElementById('transports_fields').style.display = 'none';
+        document.getElementById('voiture_fields').style.display = 'none';
+        
+        // Afficher la section correspondant au choix
+        if (moyen_transport === 'transports') {
+            document.getElementById('transports_fields').style.display = 'block';
+        } else if (moyen_transport === 'voiture') {
+            document.getElementById('voiture_fields').style.display = 'block';
+        }
+    });
+
     function calculateTotal() {
         const repas = parseFloat(document.getElementById('montant_repas').value) || 0;
         const hebergement = parseFloat(document.getElementById('montant_hebergement').value) || 0;

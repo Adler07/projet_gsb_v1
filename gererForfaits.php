@@ -28,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $repas = $_POST['repas'];
     $hebergement = $_POST['hebergement'];
     $transport = $_POST['transport'];
+    $kilometre = $_POST['kilometre'];
 
     $updateRepas = $pdo->prepare("UPDATE frais_forfait SET forfait = :forfait WHERE nom_forfait = 'repas'");
     $updateRepas->execute(['forfait' => $repas]);
@@ -37,6 +38,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $updateTransport = $pdo->prepare("UPDATE frais_forfait SET forfait = :forfait WHERE nom_forfait = 'transport'");
     $updateTransport->execute(['forfait' => $transport]);
+
+    $updateTransport = $pdo->prepare("UPDATE frais_forfait SET forfait = :forfait WHERE nom_forfait = 'kilometrique'");
+    $updateTransport->execute(['forfait' => $kilometre]);
 
     $successMessage = "Les forfaits ont été mis à jour avec succès.";
 }
@@ -100,6 +104,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="mb-3">
             <label for="transport" class="form-label text-white">Forfait transport :</label>
             <input type="text" class="form-control" id="transport" name="transport" value="<?= htmlspecialchars($forfaits[2]['forfait']) ?>" required>
+        </div>
+        <div class="mb-3">
+            <label for="transport" class="form-label text-white">Forfait kilométrique :</label>
+            <input type="text" class="form-control" id="kilometre" name="kilometre" value="<?= htmlspecialchars($forfaits[3]['forfait']) ?>" required>
         </div>
         <div class="text-center">
             <button type="submit" class="btn btn-success text-white">Changer forfaits</button>
