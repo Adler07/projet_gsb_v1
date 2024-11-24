@@ -118,8 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" class="form-control" id="role_compte" name="role_compte" value="<?= htmlspecialchars($utilisateur['role_compte']) ?>" required>
         </div>
         <div class="mb-3">
-            <label for="age" class="form-label text-white">Age :</label>
-            <input type="number" class="form-control" id="age" name="age" value="<?= htmlspecialchars($utilisateur['age']) ?>" required>
+            <label for="code_postal" class="form-label text-white">Code postal :</label>
+            <input type="number" class="form-control" id="code_postal" name="code_postal" value="<?= htmlspecialchars($utilisateur['code_postal']) ?>" required>
         </div>
 
         <div class="mb-3">

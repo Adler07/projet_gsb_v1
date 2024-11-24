@@ -99,8 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="mb-3">
-            <label for="age" class="form-label text-white">Age :</label>
-            <input type="number" class="form-control" id="age" name="age" required>
+            <label for="code_postal" class="form-label text-white">Code postal :</label>
+            <input type="number" class="form-control" id="code_postal" name="code_postal" required>
         </div>
 
         <div class="mb-3">
