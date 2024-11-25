@@ -13,59 +13,44 @@ try {
     die("Erreur de connexion : " . $e->getMessage());
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fiche_id = $_POST['fiche_id'] ?? null;
-    $validation = $_POST['validation'];
-    $raison = $_POST['raison'] ?? null;
-    $montant_partiel = $_POST['montant_partiel'] ?? null;
+    $validation = $_POST['validation'] ?? null;
+    $montant_rembourse = $_POST['montant_rembourse'] ?? null;
 
     if (!$fiche_id) {
         die("ID de fiche non spécifié.");
     }
-  
+
     $nouveau_statut = '';
+    
+
     switch ($validation) {
-        case 'Valider':
-            $nouveau_statut = 'Remboursé';
-            $raison = null; 
+        case 'Complet':
+            $nouveau_statut = 'Remboursement complet';
             break;
         case 'Partiel':
-            $nouveau_statut = 'Remboursement Partiel';
+            $nouveau_statut = 'Remboursement partiel';
             break;
-        case 'Refuser':
+        case 'Refuse':
             $nouveau_statut = 'Refusé';
-            $montant_partiel = null; 
             break;
         default:
             die("Option de validation non reconnue.");
     }
 
- 
-    $sql = "
-        UPDATE statut_fiche 
-        SET statut = :statut, raison = :raison
-        WHERE fiche_id = :fiche_id
+    $sqlStatut = "
+        UPDATE fiche_frais 
+        SET statut = :statut, montant_rembourse = :montant_rembourse
+        WHERE n°fiche_frais = :fiche_id
     ";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+    $stmtStatut = $pdo->prepare($sqlStatut);
+    $stmtStatut->execute([
         'statut' => $nouveau_statut,
-        'raison' => $raison,
+        'montant_rembourse' => $montant_rembourse,
         'fiche_id' => $fiche_id,
     ]);
 
-    if ($validation === 'Partiel' && $montant_partiel !== null) {
-        $sqlPartiel = "
-            UPDATE fiche_frais 
-            SET total = :montant_partiel 
-            WHERE `n°fiche_frais` = :fiche_id
-        ";
-        $stmtPartiel = $pdo->prepare($sqlPartiel);
-        $stmtPartiel->execute([
-            'montant_partiel' => $montant_partiel,
-            'fiche_id' => $fiche_id,
-        ]);
-    }
     header('Location: dashboardComptable.php');
     exit;
 } else {

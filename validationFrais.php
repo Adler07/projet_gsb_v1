@@ -68,7 +68,7 @@ if (!$fiche) {
     </nav>
     <div class="container mt-5">
     <h2 class="text-center mb-4 text-dark">Validation fiche de frais</h2>
-    <form class="text-white bg-dark p-4 rounded w-50 mx-auto">
+    <form class="text-white bg-dark p-4 rounded w-50 mx-auto" action="validationStatut.php" method="post">
         <input type="hidden" name="fiche_id" value="<?php echo htmlspecialchars($fiche_id); ?>">
         <div class="mb-3">
             <label for="montant_repas" class="form-label">Total repas (€) :</label>
@@ -120,55 +120,20 @@ if (!$fiche) {
             </div>
         <?php endif; ?>
         <div class="mb-3">
-                <input type="radio" name="validation" id="valider" value="Valider">
-                <label for="valider">Remboursement complet</label><br>
-                <input type="radio" name="validation" id="partiel" value="Partiel">
-                <label for="partiel">Remboursement partiel</label><br>
-                <input type="radio" name="validation" id="refuser" value="Refuser">
-                <label for="refuser">Remboursement refusé</label><br>
-            </div>
-            <div id="partiel-amount-section" class="mb-3" style="display: none;">
-                <label for="montant_partiel" class="form-label text-white">Montant du remboursement :</label>
-                <input type="number" name="montant_partiel" id="montant_partiel" class="form-control">
-            </div>
-            <div class="text-center">
-                <input type="submit" value="Enregistrer" name="enregistrer" class="btn btn-success">
-            </div>
-        </form>
-    </div>
-    </form>
+    <label for="validation" class="form-label">Validation :</label>
+    <select id="validation" name="validation" class="form-select">
+        <option value="Complet">Remboursement complet</option>
+        <option value="Partiel">Remboursement partiel</option>
+        <option value="Refuse">Remboursement refusé</option>
+    </select>
 </div>
-            
-
-    <script>
-        const commentaire = document.getElementById('raison');
-        const montantPartiel = document.getElementById('montant_partiel');
-        const sectionPartiel = document.getElementById('partiel-amount-section');
-
-        function handleValidation() {
-            const validerRadio = document.getElementById('valider');
-            const partielRadio = document.getElementById('partiel');
-            const refuserRadio = document.getElementById('refuser');
-
-            if (validerRadio.checked) {
-                commentaire.required = false;
-                sectionPartiel.style.display = 'none';
-                montantPartiel.required = false;
-            } else if (partielRadio.checked) {
-                commentaire.required = true;
-                sectionPartiel.style.display = 'block';
-                montantPartiel.required = true;
-            } else if (refuserRadio.checked) {
-                commentaire.required = true;
-                sectionPartiel.style.display = 'none';
-                montantPartiel.required = false;
-            }
-        }
-
-        document.getElementById('valider').addEventListener('change', handleValidation);
-        document.getElementById('partiel').addEventListener('change', handleValidation);
-        document.getElementById('refuser').addEventListener('change', handleValidation);
-    </script>
+<div id="remboursement" class="mb-3">
+    <label for="montant_rembourse" class="form-label">Montant du remboursement :</label>
+    <input type="number" name="montant_rembourse" id="montant_rembourse" step="0.1" class="form-control">
+</div>
+<div class="text-center">
+    <input type="submit" value="Enregistrer" name="enregistrer" class="btn btn-success">
+</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
