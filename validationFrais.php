@@ -20,10 +20,9 @@ if (!$fiche_id) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT ff.montant_repas, ff.montant_hebergement, ff.montant_deplacement, ff.total, ff.date_soumission, sf.statut 
-    FROM fiche_frais ff
-    JOIN statut_fiche sf ON ff.`n°fiche_frais` = sf.fiche_id
-    WHERE ff.`n°fiche_frais` = :fiche_id
+    SELECT montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture, statut
+    FROM fiche_frais
+    WHERE n°fiche_frais = :fiche_id
 ");
 $stmt->execute(['fiche_id' => $fiche_id]);
 $fiche = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -68,30 +67,59 @@ if (!$fiche) {
         </div>
     </nav>
     <div class="container mt-5">
-        <h2 class="text-center mb-4 text-dark">Visualisation de la fiche de frais</h2>
-        <form action="validationStatut.php" method="post" class="bg-dark p-4 rounded w-50 mx-auto">
-            <input type="hidden" name="fiche_id" value="<?php echo htmlspecialchars($fiche_id); ?>">
-            <div class="mb-3">
-                <label for="montant_repas" class="form-label text-white">Montant repas :</label>
-                <input type="text" class="form-control" id="montant_repas" value="<?php echo htmlspecialchars($fiche['montant_repas']); ?>" readonly>
+    <h2 class="text-center mb-4 text-dark">Validation fiche de frais</h2>
+    <form class="text-white bg-dark p-4 rounded w-50 mx-auto">
+        <input type="hidden" name="fiche_id" value="<?php echo htmlspecialchars($fiche_id); ?>">
+        <div class="mb-3">
+            <label for="montant_repas" class="form-label">Total repas (€) :</label>
+            <input type="number" class="form-control" id="montant_repas" value="<?php echo htmlspecialchars($fiche['montant_repas']); ?>" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="nombre_repas" class="form-label">Nombre de repas :</label>
+            <input type="number" class="form-control" id="nombre_repas" value="<?php echo htmlspecialchars($fiche['nombre_repas']); ?>" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="montant_hebergement" class="form-label">Total hébergement (€) :</label>
+            <input type="number" class="form-control" id="montant_hebergement" value="<?php echo htmlspecialchars($fiche['montant_hebergement']); ?>" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="nombre_hebergement" class="form-label">Nombre de nuits :</label>
+            <input type="number" class="form-control" id="nombre_hebergement" value="<?php echo htmlspecialchars($fiche['nombre_hebergement']); ?>" readonly>
+        </div>
+        <?php if ($fiche['kilometres_voiture'] === null): ?>
+            <div id="transports_fields">
+                <div class="mb-3">
+                    <label for="total_deplacement" class="form-label">Total déplacement (€) :</label>
+                    <input type="number" class="form-control" id="total_deplacement" value="<?php echo htmlspecialchars($fiche['montant_deplacement']); ?>" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="nombre_deplacement" class="form-label">Nombre de déplacements :</label>
+                    <input type="number" class="form-control" id="nombre_deplacement" value="<?php echo htmlspecialchars($fiche['nombre_deplacement']); ?>" readonly>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="montant_hebergement" class="form-label text-white">Montant hébergement :</label>
-                <input type="text" class="form-control" id="montant_hebergement" value="<?php echo htmlspecialchars($fiche['montant_hebergement']); ?>" readonly>
+        <?php else: ?>
+            <div id="voiture_fields">
+                <div class="mb-3">
+                    <label for="kilometres_voiture" class="form-label">Kilomètres effectués :</label>
+                    <input type="number" class="form-control" id="kilometres_voiture" value="<?php echo htmlspecialchars($fiche['kilometres_voiture']); ?>" readonly>
+                </div>
             </div>
+        <?php endif; ?>
+        <div class="mb-3">
+            <label for="total" class="form-label">Total (€) :</label>
+            <input type="number" class="form-control" id="total" value="<?php echo htmlspecialchars($fiche['total']); ?>" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Date :</label>
+            <input type="date" class="form-control" id="date" value="<?php echo htmlspecialchars($fiche['date_soumission']); ?>" readonly>
+        </div>
+        <?php if (!empty($fiche['justificatif'])): ?>
             <div class="mb-3">
-                <label for="montant_deplacement" class="form-label text-white">Montant déplacement :</label>
-                <input type="text" class="form-control" id="montant_deplacement" value="<?php echo htmlspecialchars($fiche['montant_deplacement']); ?>" readonly>
+                <label class="form-label">Justificatif existant :</label>
+                <a href="path_to_your_directory/<?php echo $fiche['justificatif']; ?>" target="_blank">Voir le justificatif précédent</a>
             </div>
-            <div class="mb-3">
-                <label for="total" class="form-label text-white">Total :</label>
-                <input type="text" class="form-control" id="total" value="<?php echo htmlspecialchars($fiche['total']); ?>" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="date_soumission" class="form-label text-white">Date :</label>
-                <input type="date" class="form-control" id="date_soumission" value="<?php echo htmlspecialchars($fiche['date_soumission']); ?>" readonly>
-            </div>
-            <div class="mb-3">
+        <?php endif; ?>
+        <div class="mb-3">
                 <input type="radio" name="validation" id="valider" value="Valider">
                 <label for="valider">Remboursement complet</label><br>
                 <input type="radio" name="validation" id="partiel" value="Partiel">
@@ -99,12 +127,8 @@ if (!$fiche) {
                 <input type="radio" name="validation" id="refuser" value="Refuser">
                 <label for="refuser">Remboursement refusé</label><br>
             </div>
-            <div class="mb-3">
-                <label for="raison" class="form-label text-white">Raison (obligatoire si refusé ou partiel) :</label>
-                <textarea name="raison" id="raison" class="form-control" maxlength="255"></textarea>
-            </div>
             <div id="partiel-amount-section" class="mb-3" style="display: none;">
-                <label for="montant_partiel" class="form-label text-white">Montant du remboursement partiel :</label>
+                <label for="montant_partiel" class="form-label text-white">Montant du remboursement :</label>
                 <input type="number" name="montant_partiel" id="montant_partiel" class="form-control">
             </div>
             <div class="text-center">
@@ -112,6 +136,9 @@ if (!$fiche) {
             </div>
         </form>
     </div>
+    </form>
+</div>
+            
 
     <script>
         const commentaire = document.getElementById('raison');

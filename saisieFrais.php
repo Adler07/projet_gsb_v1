@@ -39,10 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture, statut) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path, $kilometres_voiture]);
+$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path, $kilometres_voiture, 'En attente']);
     }
     elseif (isset($_POST['type_frais']) && $_POST['type_frais'] === 'hors_forfait') {
         $date = $_POST['date_hors_forfait'];
@@ -64,10 +64,11 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
             }
         }
     
-        $sql = "INSERT INTO hors_forfait (date_hors_forfait, libelle, montant, justificatif) 
-                VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO hors_forfait (date_hors_forfait, libelle, montant, justificatif, statut) 
+        VALUES (?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$date, $libelle, $montant, $justificatif_path]);
+        $stmt->execute([$date, $libelle, $montant, $justificatif_path, 'En attente']);
+
     
         echo "Frais hors forfait ajoutés avec succès !";
     }
@@ -144,7 +145,6 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
                     <label for="nombre_repas" class="form-label">Nombre de nuits :</label>
                     <input type="number" class="form-control" id="nombre_hebergement" name="nombre_hebergement" required>
                 </div>
-                <!-- Question sur le moyen de transport -->
     <div class="mb-3">
         <label class="form-label">Avez-vous pris les transports en commun ou utilisé la voiture ?</label>
         <select class="form-control" id="moyen_transport" name="moyen_transport" required>
@@ -154,7 +154,6 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
         </select>
     </div>
 
-    <!-- Si l'utilisateur a pris les transports -->
     <div id="transports_fields" style="display:none;">
         <div class="mb-3">
             <label for="total_deplacement" class="form-label">Total déplacement (€) :</label>
@@ -166,7 +165,6 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
         </div>
     </div>
 
-    <!-- Si l'utilisateur a utilisé la voiture -->
     <div id="voiture_fields" style="display:none;">
         <div class="mb-3">
             <label for="kilometres_voiture" class="form-label">Nombre de kilomètres effectués en voiture :</label>
@@ -217,32 +215,58 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.getElementById('moyen_transport').addEventListener('change', function() {
-        var moyen_transport = this.value;
-        
-        // Masquer les deux sections par défaut
-        document.getElementById('transports_fields').style.display = 'none';
-        document.getElementById('voiture_fields').style.display = 'none';
-        
-        // Afficher la section correspondant au choix
-        if (moyen_transport === 'transports') {
-            document.getElementById('transports_fields').style.display = 'block';
-        } else if (moyen_transport === 'voiture') {
-            document.getElementById('voiture_fields').style.display = 'block';
-        }
-    });
+document.getElementById('moyen_transport').addEventListener('change', function() {
+    var moyen_transport = this.value;
 
-    function calculateTotal() {
-        const repas = parseFloat(document.getElementById('montant_repas').value) || 0;
-        const hebergement = parseFloat(document.getElementById('montant_hebergement').value) || 0;
-        const deplacement = parseFloat(document.getElementById('montant_deplacement').value) || 0;
+    document.getElementById('transports_fields').style.display = 'none';
+    document.getElementById('voiture_fields').style.display = 'none';
 
-        const total = repas + hebergement + deplacement;
-        document.getElementById('total').value = total.toFixed(2);
+    if (moyen_transport === 'transports') {
+        document.getElementById('transports_fields').style.display = 'block';
+    } else if (moyen_transport === 'voiture') {
+        document.getElementById('voiture_fields').style.display = 'block';
     }
-    document.getElementById('montant_repas').addEventListener('input', calculateTotal);
-    document.getElementById('montant_hebergement').addEventListener('input', calculateTotal);
-    document.getElementById('montant_deplacement').addEventListener('input', calculateTotal);
+
+   
+    calculateTotal(); 
+});
+
+
+function calculateTotal() {
+
+    var montant_repas = parseFloat(document.getElementById('montant_repas').value) || 0;
+    var nombre_repas = parseInt(document.getElementById('nombre_repas').value) || 0;
+    var montant_hebergement = parseFloat(document.getElementById('montant_hebergement').value) || 0;
+    var nombre_hebergement = parseInt(document.getElementById('nombre_hebergement').value) || 0;
+    var total_deplacement = parseFloat(document.getElementById('total_deplacement').value) || 0;
+    var nombre_deplacement = parseInt(document.getElementById('nombre_deplacement').value) || 0;
+    var kilometres_voiture = parseFloat(document.getElementById('kilometres_voiture').value) || 0;
+
+    var totalRepas = montant_repas; 
+    var totalHebergement = montant_hebergement; 
+    var total = totalRepas + totalHebergement;  
+
+  
+    if (document.getElementById('moyen_transport').value === 'voiture') {
+        var totalKilometres = kilometres_voiture * 0.5; 
+        total += totalKilometres;
+    } else if (document.getElementById('moyen_transport').value === 'transports') {
+        var totalTransport = total_deplacement * nombre_deplacement; 
+        total += totalTransport;
+    }
+
+
+    document.getElementById('total').value = total.toFixed(2);
+}
+
+document.getElementById('montant_repas').addEventListener('input', calculateTotal);
+document.getElementById('nombre_repas').addEventListener('input', calculateTotal);
+document.getElementById('montant_hebergement').addEventListener('input', calculateTotal);
+document.getElementById('nombre_hebergement').addEventListener('input', calculateTotal);
+document.getElementById('total_deplacement').addEventListener('input', calculateTotal);
+document.getElementById('nombre_deplacement').addEventListener('input', calculateTotal);
+document.getElementById('kilometres_voiture').addEventListener('input', calculateTotal);
+
 </script>
 </body>
 </html>

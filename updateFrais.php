@@ -16,13 +16,18 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fiche_id = $_POST['fiche_id'];
     $montant_repas = $_POST['montant_repas'];
+    $nombre_repas = $_POST['nombre_repas'];
     $montant_hebergement = $_POST['montant_hebergement'];
-    $montant_deplacement = $_POST['montant_deplacement'];
+    $nombre_hebergement = $_POST['nombre_hebergement'];
+    $montant_deplacement = $_POST['total_deplacement'];
+    $nombre_deplacement = $_POST['nombre_deplacement'];
     $total = $_POST['total'];
-    $date_soumission = $_POST['date_soumission'];
+    $date_soumission = $_POST['date'];
+    $justificatif = $_FILES['justificatif'];
+    $kilometres_voiture = $_POST['kilometres_voiture'];
 
     
-    if (empty($fiche_id) || empty($montant_repas) || empty($montant_hebergement) || empty($montant_deplacement) || empty($total) || empty($date_soumission)) {
+    if (empty($fiche_id) || empty($montant_repas) || empty($montant_hebergement) || empty($total) || empty($date_soumission)) {
         die("Tous les champs sont obligatoires.");
     }
 
@@ -31,21 +36,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("
             UPDATE fiche_frais 
             SET montant_repas = :montant_repas, 
+                nombre_repas = :nombre_repas, 
                 montant_hebergement = :montant_hebergement, 
+                nombre_hebergement = :nombre_hebergement, 
                 montant_deplacement = :montant_deplacement, 
+                nombre_deplacement = :nombre_deplacement, 
                 total = :total, 
-                date_soumission = :date_soumission
+                date_soumission = :date_soumission,
+                justificatif = :justificatif,
+                kilometres_voiture = :kilometres_voiture
             WHERE `n°fiche_frais` = :fiche_id
         ");
 
 
         $stmt->execute([
+            'fiche_id' => $fiche_id,
             'montant_repas' => $montant_repas,
+            'nombre_repas' => $nombre_repas,
             'montant_hebergement' => $montant_hebergement,
+            'nombre_hebergement' => $nombre_hebergement,
             'montant_deplacement' => $montant_deplacement,
+            'nombre_deplacement' => $nombre_deplacement,
             'total' => $total,
             'date_soumission' => $date_soumission,
-            'fiche_id' => $fiche_id
+            'kilometres_voiture' => $kilometres_voiture,
+            'justificatif' => $justificatif
+            
         ]);
 
         header("Location: dashboardVisiteur.php");

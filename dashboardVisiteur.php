@@ -14,13 +14,22 @@ $password = '';
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $stmt = $pdo->prepare("SELECT f.`n°fiche_frais`, f.total, f.date_soumission, s.statut 
-                            FROM fiche_frais f
-                            LEFT JOIN statut_fiche s ON f.`n°fiche_frais` = s.fiche_id
-                            WHERE s.statut = 'En attente' OR s.statut IS NULL
-                             ORDER BY f.`n°fiche_frais` DESC");
-    $stmt->execute();
+
+    // Requête pour récupérer les fiches de frais en attente
+    $stmt = $pdo->prepare("SELECT `n°fiche_frais`, total, date_soumission, statut
+                            FROM fiche_frais 
+                            WHERE statut = 'En attente' AND id_visiteur = :id
+                            ORDER BY `n°fiche_frais` DESC");
+    $stmt->execute([':id' => $id]);
     $fiches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Requête pour récupérer les hors forfait
+    $stmt_hors_forfait = $pdo->prepare("SELECT *
+                                        FROM hors_forfait 
+                                        WHERE statut = 'En attente' AND id_visiteur = :id
+                                        ORDER BY id_hors_forfait DESC;");
+    $stmt_hors_forfait->execute([':id' => $id]);
+    $hors_forfait = $stmt_hors_forfait->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
     echo "Erreur : " . $e->getMessage();
@@ -99,6 +108,43 @@ try {
             <?php else : ?>
                 <tr>
                     <td colspan="5">Aucune fiche de frais en attente.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- Deuxième tableau pour les Hors Forfait -->
+<div class="container mt-4">
+    <h3 class="text-center mb-4">Liste des Hors Forfait</h3>
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Fiche Hors Forfait</th>
+                <th>Date du Hors Forfait</th>
+                <th>Libellé</th>
+                <th>Montant (€)</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($hors_forfait)) : ?>
+                <?php foreach ($hors_forfait as $hf) : ?>
+                    <tr>
+                        <td><?= htmlspecialchars($hf['id_hors_forfait']); ?></td>
+                        <td><?= htmlspecialchars($hf['date_hors_forfait']); ?></td>
+                        <td><?= htmlspecialchars($hf['libelle']); ?></td>
+                        <td><?= number_format($hf['montant'], 2, ',', ' '); ?> €</td>
+                        <td><?= htmlspecialchars($hf['statut']); ?></td>
+                        <td>
+                            <a href="consultationHorsForfait.php?hf_id=<?= $hf['id_hors_forfait']; ?>" class="btn btn-primary">Consulter</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <tr>
+                    <td colspan="6">Aucun hors forfait enregistré.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
