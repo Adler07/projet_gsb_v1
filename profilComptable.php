@@ -52,9 +52,7 @@ if (isset($_POST['update'])) {
 <body>
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
                 <a class="nav-link text-white" href="dashboardComptable.php">Accueil</a>

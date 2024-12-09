@@ -20,9 +20,19 @@ try {
     die('Erreur de connexion : ' . $e->getMessage());
 }
 
+$sql = "SELECT AVG(montant_repas) AS avg_repas, AVG(montant_hebergement) AS avg_hebergement, AVG(montant_deplacement) AS avg_transport, AVG(kilometres_voiture) AS avg_kilometre FROM fiche_frais";
+$stmt = $pdo->query($sql);
+$averages = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$avg_repas = $averages['avg_repas'];
+$avg_hebergement = $averages['avg_hebergement'];
+$avg_transport = $averages['avg_transport'];
+$avg_kilometre = $averages['avg_kilometre'];
+
 $sql = "SELECT * FROM frais_forfait";
 $stmt = $pdo->query($sql);
 $forfaits = $stmt->fetchAll();
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $repas = $_POST['repas'];
@@ -58,9 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -84,6 +92,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </nav>
+<div style="width: 25%; margin: auto; padding: 10px;">
+ <canvas id="myChart"></canvas>
+</div>
 
 <div class="container mt-5">
     <?php if (!empty($successMessage)): ?>
@@ -114,7 +125,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </form>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+     const avgRepas = <?= json_encode($avg_repas); ?>;
+    const avgHebergement = <?= json_encode($avg_hebergement); ?>;
+    const avgTransport = <?= json_encode($avg_transport); ?>;
+    const avgKilometre = <?= json_encode($avg_kilometre); ?>;
 
+    const labels = ['Repas', 'Hébergement', 'Transport', 'Kilomètre'];
+    const data = [avgRepas, avgHebergement, avgTransport, avgKilometre];
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Moyenne repas',
+                data: data,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItem) {
+                        // Afficher un texte personnalisé pour chaque barre
+                        const index = tooltipItem[0].dataIndex;
+                        const text = ['Moyenne Repas', 'Moyenne Hébergement', 'Moyenne Transport', 'Moyenne Kilomètre'];
+                        return text[index]; // Retourner le label personnalisé pour chaque catégorie
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

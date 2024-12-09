@@ -45,10 +45,7 @@ try {
 <body class="bg-white text-white">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-            GSB
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -131,7 +128,7 @@ try {
                         <td><?= number_format($hf['montant'], 2, ',', ' '); ?> €</td>
                         <td><?= htmlspecialchars($hf['statut']); ?></td>
                         <td>
-                            <a href="consultationHorsForfait.php?hf_id=<?= $hf['id_hors_forfait']; ?>" class="btn btn-primary">Consulter</a>
+                            <a href="validationHorsForfait.php?hf_id=<?= $hf['id_hors_forfait']; ?>" class="btn btn-primary">Consulter</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

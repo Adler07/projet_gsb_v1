@@ -1,5 +1,7 @@
 <?php 
 session_start();
+$id_visiteur = $_SESSION['id'];
+
 
 $db = 'mysql:host=localhost;dbname=gsb1;charset=utf8';
 $username = 'root';
@@ -39,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture, statut) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO fiche_frais (montant_repas, nombre_repas, montant_hebergement, nombre_hebergement, montant_deplacement, nombre_deplacement, total, date_soumission, justificatif, kilometres_voiture, statut, id_visiteur) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path, $kilometres_voiture, 'En attente']);
+$stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_hebergement, $montant_deplacement, $nombre_deplacement, $total, $date, $justificatif_path, $kilometres_voiture, 'En attente', $id_visiteur]);
     }
     elseif (isset($_POST['type_frais']) && $_POST['type_frais'] === 'hors_forfait') {
         $date = $_POST['date_hors_forfait'];
@@ -64,10 +66,10 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
             }
         }
     
-        $sql = "INSERT INTO hors_forfait (date_hors_forfait, libelle, montant, justificatif, statut) 
-        VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO hors_forfait (date_hors_forfait, libelle, montant, justificatif, statut, id_visiteur) 
+        VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$date, $libelle, $montant, $justificatif_path, 'En attente']);
+        $stmt->execute([$date, $libelle, $montant, $justificatif_path, 'En attente', $id_visiteur]);
 
     
         echo "Frais hors forfait ajoutés avec succès !";
@@ -89,9 +91,7 @@ $stmt->execute([$montant_repas, $nombre_repas, $montant_hebergement, $nombre_heb
 <body>
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

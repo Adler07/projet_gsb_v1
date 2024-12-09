@@ -20,16 +20,13 @@ if (!$fiche_id) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT hf.id_hors_forfait, hf.date_hors_forfait, hf.libelle, hf.montant, hf.justificatif, hf.statut
-    FROM hors_forfait hf
-    INNER JOIN fiche_frais ff ON hf.id_visiteur = ff.id_visiteur
-    WHERE ff.id_visiteur = :visiteur_id AND hf.id_visiteur = :fiche_id
+    SELECT * FROM hors_forfait 
+    WHERE id_hors_forfait = :fiche_id
 ");
 
 // Passer les deux paramètres lors de l'exécution
 $stmt->execute([
-    'visiteur_id' => $_SESSION['id'],  // ID du visiteur dans la session
-    'fiche_id' => $fiche_id            // ID de la fiche récupéré depuis l'URL
+    'fiche_id' => $fiche_id,  // ID du visiteur dans la session
 ]);
 
 $fiche = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -53,10 +50,7 @@ $isEditable = ($fiche['statut'] === 'En attente');
 <body class="text-white">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-            GSB
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

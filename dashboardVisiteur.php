@@ -16,8 +16,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Requête pour récupérer les fiches de frais en attente
-    $stmt = $pdo->prepare("SELECT `n°fiche_frais`, total, date_soumission, statut
-                            FROM fiche_frais 
+    $stmt = $pdo->prepare("SELECT * FROM fiche_frais
                             WHERE statut = 'En attente' AND id_visiteur = :id
                             ORDER BY `n°fiche_frais` DESC");
     $stmt->execute([':id' => $id]);
@@ -26,7 +25,7 @@ try {
     // Requête pour récupérer les hors forfait
     $stmt_hors_forfait = $pdo->prepare("SELECT *
                                         FROM hors_forfait 
-                                        WHERE statut = 'En attente' AND id_visiteur = :id
+                                        WHERE id_visiteur = :id
                                         ORDER BY id_hors_forfait DESC;");
     $stmt_hors_forfait->execute([':id' => $id]);
     $hors_forfait = $stmt_hors_forfait->fetchAll(PDO::FETCH_ASSOC);
@@ -47,10 +46,7 @@ try {
 <body class="bg-white text-white">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="assets/images/logo.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center">
-            GSB
-        </a>
+    <img src="assets\images\Fichier 1.png" alt="Logo" width="150" height="auto" class="d-inline-block align-text-center">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -81,15 +77,16 @@ try {
     </div>
 </div>
 <div class="container mt-4">
-    <h3 class="text-center mb-4">Liste des Fiches de Frais en Attente</h3>
+    <h3 class="text-center mb-4 text-dark">Liste des fiches de frais</h3>
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
                 <th>Numéro de Fiche</th>
-                <th>Total (€)</th>
                 <th>Date de Soumission</th>
-                <th>Statut</th>
+                <th>Total (€)</th>
+                <th>Montant remboursé</th>
                 <th>Action</th>
+                <th>Statut</th>
             </tr>
         </thead>
         <tbody>
@@ -97,8 +94,9 @@ try {
                 <?php foreach ($fiches as $fiche) : ?>
                     <tr>
                         <td><?= htmlspecialchars($fiche['n°fiche_frais']); ?></td>
-                        <td><?= number_format($fiche['total'], 2, ',', ' '); ?> €</td>
                         <td><?= htmlspecialchars($fiche['date_soumission']); ?></td>
+                        <td><?= number_format($fiche['total'], 2, ',', ' '); ?> €</td>
+                        <td><?= htmlspecialchars($fiche['montant_rembourse']); ?> €</td>
                         <td><?= htmlspecialchars($fiche['statut']); ?></td>
                         <td>
                             <a href="consultationFrais.php?fiche_id=<?= $fiche['n°fiche_frais']; ?>" class="btn btn-primary">Consulter</a>
@@ -107,7 +105,7 @@ try {
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="5">Aucune fiche de frais en attente.</td>
+                    <td colspan="10">Aucune fiche de frais en attente.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
@@ -116,7 +114,7 @@ try {
 
 <!-- Deuxième tableau pour les Hors Forfait -->
 <div class="container mt-4">
-    <h3 class="text-center mb-4">Liste des Hors Forfait</h3>
+    <h3 class="text-center mb-4 text-dark">Liste des fiches hors forfait</h3>
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
